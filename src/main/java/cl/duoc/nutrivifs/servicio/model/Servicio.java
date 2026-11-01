@@ -1,4 +1,4 @@
-package cl.duoc.nutrivifs.model;
+package cl.duoc.nutrivifs.servicio.model;
 
 
 import jakarta.persistence.*;
@@ -28,8 +28,8 @@ public class Servicio {
     private String image;
     private String alt;
     @ManyToOne
-    @JoinColumn(name = "id_categoria_servicio")
-    private CategoriaServicio categoriaServicio;
+    @JoinColumn(name = "id_categoria")
+    private Categoria Categoria;
     private boolean enlace;
 
     //pendiente: generar el codigo alfanumerico a partir del id (ejemplo M003)

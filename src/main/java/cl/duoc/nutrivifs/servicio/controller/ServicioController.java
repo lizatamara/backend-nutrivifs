@@ -1,8 +1,7 @@
-package cl.duoc.nutrivifs.controller;
+package cl.duoc.nutrivifs.servicio.controller;
 
-import cl.duoc.nutrivifs.model.CategoriaServicio;
-import cl.duoc.nutrivifs.model.Servicio;
-import cl.duoc.nutrivifs.service.ServicioService;
+import cl.duoc.nutrivifs.servicio.model.Servicio;
+import cl.duoc.nutrivifs.servicio.service.ServicioService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

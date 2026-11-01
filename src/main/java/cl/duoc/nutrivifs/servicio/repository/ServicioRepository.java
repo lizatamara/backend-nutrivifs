@@ -1,6 +1,6 @@
-package cl.duoc.nutrivifs.repository;
+package cl.duoc.nutrivifs.servicio.repository;
 
-import cl.duoc.nutrivifs.model.Servicio;
+import cl.duoc.nutrivifs.servicio.model.Servicio;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

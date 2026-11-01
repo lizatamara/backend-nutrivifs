@@ -1,7 +1,7 @@
-package cl.duoc.nutrivifs.service;
+package cl.duoc.nutrivifs.servicio.service;
 
-import cl.duoc.nutrivifs.model.Servicio;
-import cl.duoc.nutrivifs.repository.ServicioRepository;
+import cl.duoc.nutrivifs.servicio.model.Servicio;
+import cl.duoc.nutrivifs.servicio.repository.ServicioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

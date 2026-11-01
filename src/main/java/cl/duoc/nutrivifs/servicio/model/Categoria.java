@@ -1,4 +1,4 @@
-package cl.duoc.nutrivifs.model;
+package cl.duoc.nutrivifs.servicio.model;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -9,12 +9,12 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "categorias_productos")
-public class CategoriaProducto {
+@Table(name = "categorias_servicios")
+public class Categoria {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id_categoria_producto")
+    @Column(name = "id_categoria")
     private Long idCategoria;
     @Column(nullable = false, length = 30)
     private String nombre;

@@ -1,4 +1,4 @@
-package cl.duoc.nutrivifs.model;
+package cl.duoc.nutrivifs.producto.model;
 
 
 import jakarta.persistence.*;
@@ -28,8 +28,8 @@ public class Producto {
     private int stockCritico;
     private String image;
     @ManyToOne
-    @JoinColumn(name = "id_categoria_producto")
-    private CategoriaProducto categoriaProducto;
+    @JoinColumn(name = "id_categoria")
+    private Categoria categoria;
 
     //pendiente: generar el codigo alfanumerico a partir del id (ejemplo M003)
     //lo hacemos desde los dto que aun no implementamos

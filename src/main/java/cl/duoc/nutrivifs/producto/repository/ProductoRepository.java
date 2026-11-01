@@ -1,6 +1,6 @@
-package cl.duoc.nutrivifs.repository;
+package cl.duoc.nutrivifs.producto.repository;
 
-import cl.duoc.nutrivifs.model.Producto;
+import cl.duoc.nutrivifs.producto.model.Producto;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
