@@ -14,7 +14,7 @@ public class ServicioController {
     @Autowired
     private ServicioService servicioService;
 
-    @GetMapping("/listar_servicios")
+    @GetMapping
     public ResponseEntity<?> listar(){
         return ResponseEntity.ok(servicioService.listar());
     }

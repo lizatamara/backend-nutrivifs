@@ -29,7 +29,7 @@ public class Servicio {
     private String alt;
     @ManyToOne
     @JoinColumn(name = "id_categoria")
-    private Categoria Categoria;
+    private Categoria categoria;
     private boolean enlace;
 
     //pendiente: generar el codigo alfanumerico a partir del id (ejemplo M003)

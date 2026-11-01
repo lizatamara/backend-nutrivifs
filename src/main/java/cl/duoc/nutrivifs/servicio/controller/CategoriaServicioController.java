@@ -1,20 +1,20 @@
-package cl.duoc.nutrivifs.producto.controller;
+package cl.duoc.nutrivifs.servicio.controller;
 
-import cl.duoc.nutrivifs.producto.model.Categoria;
-import cl.duoc.nutrivifs.producto.service.CategoriaService;
+import cl.duoc.nutrivifs.servicio.model.Categoria;
+import cl.duoc.nutrivifs.servicio.service.CategoriaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/categorias_productos")
-public class CategoriaController {
+@RequestMapping("/servicios/categorias")
+public class CategoriaServicioController {
 
     @Autowired
     private CategoriaService categoriaService;
 
-    @GetMapping("/listar_categorias_productos")
+    @GetMapping
     public ResponseEntity<?> listar(){
         return ResponseEntity.ok(categoriaService.listar());
     }

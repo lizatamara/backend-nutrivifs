@@ -14,7 +14,7 @@ public class ProductoController {
     @Autowired
     private ProductoService productoService;
 
-    @GetMapping("/listar_productos")
+    @GetMapping
     public ResponseEntity<?> listar(){
         return ResponseEntity.ok(productoService.listar());
     }

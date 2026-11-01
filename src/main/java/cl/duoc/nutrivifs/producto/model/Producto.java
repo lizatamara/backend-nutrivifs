@@ -29,7 +29,7 @@ public class Producto {
     private String image;
     @ManyToOne
     @JoinColumn(name = "id_categoria")
-    private Categoria categoria;
+    private CategoriaProducto categoria;
 
     //pendiente: generar el codigo alfanumerico a partir del id (ejemplo M003)
     //lo hacemos desde los dto que aun no implementamos
