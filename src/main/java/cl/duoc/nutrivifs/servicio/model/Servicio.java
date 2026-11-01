@@ -1,6 +1,5 @@
 package cl.duoc.nutrivifs.servicio.model;
 
-
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
