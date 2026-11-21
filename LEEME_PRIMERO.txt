@@ -1,0 +1,40 @@
+BACKEND NUTRIVIFS - VERSIÓN COMPLEMENTADA
+
+ESTA CARPETA CONTIENE EL BACKEND ORIGINAL QUE ENVIASTE MÁS LOS MÓDULOS NUEVOS.
+No reemplaces archivos sueltos dentro de tu proyecto original. Haz una copia de seguridad y abre esta carpeta completa en IntelliJ como proyecto Maven. Esta carpeta es una copia del backend que enviaste con los módulos agregados.
+
+NUEVO:
+- cita/: solicitudes de horas veterinarias.
+- mensaje/: mensajes enviados desde Contacto.
+- resena/: opiniones de productos.
+- archivo/controller/ArchivoController.java: recibe imágenes del administrador.
+- config/ArchivosWebConfig.java: permite mostrar imágenes guardadas en /uploads.
+- sql_modulos_nuevos.sql: crea las tablas de citas, mensajes y reseñas.
+
+SEGURIDAD:
+- Crear cita y enviar mensaje: público.
+- Consultar lista completa de citas/mensajes: administrador o vendedor.
+- Consultar citas propias: usuario autenticado.
+- Cambiar estado de cita: administrador.
+- Leer reseñas: público.
+- Crear reseña: usuario autenticado.
+- Borrar reseña: autor o administrador (comprobación en servicio).
+- Subir imagen: administrador.
+
+INSTALACIÓN:
+1. Copia tu proyecto actual como respaldo.
+2. Descomprime este ZIP.
+3. Abre la carpeta backend-nutrivifs_completo (la carpeta donde está pom.xml) en IntelliJ.
+4. Enciende MySQL y ejecuta crear_base_datos.sql en phpMyAdmin.
+5. Verifica src/main/resources/application.properties: base de datos nutrivifs, usuario y contraseña MySQL.
+6. Ejecuta NutrivifsApplication.java. Hibernate crea/actualiza las tablas y DatosIniciales.java carga los datos de demostración si las tablas están vacías.
+7. Las entidades nuevas crean las tablas citas, mensajes y resenas automáticamente. sql_modulos_nuevos.sql es una alternativa manual; no lo ejecutes si las tablas ya existen.
+8. Swagger: http://localhost:8080/swagger-ui/index.html
+
+IMÁGENES:
+POST /api/v1/archivos/imagen (multipart/form-data, campo: archivo), solo ADMINISTRADOR.
+La respuesta incluye una URL como /uploads/nombre-generado.jpg. El archivo se guarda en la carpeta uploads junto al proyecto.
+
+IMPORTANTE:
+- El backend está preparado para los módulos nuevos, pero las páginas React originales todavía usan localStorage para citas, mensajes y reseñas. Para que la web use MySQL, también hay que modificar esos servicios/páginas del frontend.
+- No afirmamos que se haya ejecutado una compilación Maven en este entorno. Debes abrirlo en IntelliJ, compilar y compartir cualquier error para corregirlo.
