@@ -1,40 +1,159 @@
-BACKEND NUTRIVIFS - VERSIÓN COMPLEMENTADA
+BACKEND NUTRIVIFS - CLINICA VETERINARIA
+Proyecto DSY1104 - Evaluacion Parcial 3 (Spring Boot + MySQL + JWT)
 
-ESTA CARPETA CONTIENE EL BACKEND ORIGINAL QUE ENVIASTE MÁS LOS MÓDULOS NUEVOS.
-No reemplaces archivos sueltos dentro de tu proyecto original. Haz una copia de seguridad y abre esta carpeta completa en IntelliJ como proyecto Maven. Esta carpeta es una copia del backend que enviaste con los módulos agregados.
+============================================================
+1. REQUISITOS
+============================================================
+- Java 21
+- MySQL 8 (XAMPP / phpMyAdmin sirve)
+- IntelliJ IDEA (o cualquier IDE con soporte Maven). No hace falta instalar
+  Maven: el proyecto incluye el wrapper (mvnw / mvnw.cmd).
+- Frontend (repositorio aparte) corriendo en http://localhost:5173
 
-NUEVO:
-- cita/: solicitudes de horas veterinarias.
-- mensaje/: mensajes enviados desde Contacto.
-- resena/: opiniones de productos.
-- archivo/controller/ArchivoController.java: recibe imágenes del administrador.
-- config/ArchivosWebConfig.java: permite mostrar imágenes guardadas en /uploads.
-- sql_modulos_nuevos.sql: crea las tablas de citas, mensajes y reseñas.
+============================================================
+2. PUESTA EN MARCHA
+============================================================
+1. Enciende MySQL y crea la base de datos vacia (una sola vez):
 
-SEGURIDAD:
-- Crear cita y enviar mensaje: público.
-- Consultar lista completa de citas/mensajes: administrador o vendedor.
-- Consultar citas propias: usuario autenticado.
-- Cambiar estado de cita: administrador.
-- Leer reseñas: público.
-- Crear reseña: usuario autenticado.
-- Borrar reseña: autor o administrador (comprobación en servicio).
-- Subir imagen: administrador.
+       CREATE DATABASE nutrivifs CHARACTER SET utf8mb4;
 
-INSTALACIÓN:
-1. Copia tu proyecto actual como respaldo.
-2. Descomprime este ZIP.
-3. Abre la carpeta backend-nutrivifs_completo (la carpeta donde está pom.xml) en IntelliJ.
-4. Enciende MySQL y ejecuta crear_base_datos.sql en phpMyAdmin.
-5. Verifica src/main/resources/application.properties: base de datos nutrivifs, usuario y contraseña MySQL.
-6. Ejecuta NutrivifsApplication.java. Hibernate crea/actualiza las tablas y DatosIniciales.java carga los datos de demostración si las tablas están vacías.
-7. Las entidades nuevas crean las tablas citas, mensajes y resenas automáticamente. sql_modulos_nuevos.sql es una alternativa manual; no lo ejecutes si las tablas ya existen.
-8. Swagger: http://localhost:8080/swagger-ui/index.html
+2. Revisa src/main/resources/application.properties:
+   - spring.datasource.url      -> jdbc:mysql://localhost:3306/nutrivifs
+   - spring.datasource.username -> tu usuario MySQL (por defecto: root)
+   - spring.datasource.password -> tu contrasena MySQL (por defecto: vacia)
+   Ajustalo a tu equipo. No subas a GitHub contrasenas ni claves reales.
 
-IMÁGENES:
-POST /api/v1/archivos/imagen (multipart/form-data, campo: archivo), solo ADMINISTRADOR.
-La respuesta incluye una URL como /uploads/nombre-generado.jpg. El archivo se guarda en la carpeta uploads junto al proyecto.
+3. Abre esta carpeta (la que contiene pom.xml) en IntelliJ como proyecto
+   Maven y espera a que descargue las dependencias.
 
-IMPORTANTE:
-- El backend está preparado para los módulos nuevos, pero las páginas React originales todavía usan localStorage para citas, mensajes y reseñas. Para que la web use MySQL, también hay que modificar esos servicios/páginas del frontend.
-- No afirmamos que se haya ejecutado una compilación Maven en este entorno. Debes abrirlo en IntelliJ, compilar y compartir cualquier error para corregirlo.
+4. Ejecuta NutrivifsApplication.java, o desde la terminal:
+
+       ./mvnw spring-boot:run          (Linux / Mac)
+       mvnw.cmd spring-boot:run        (Windows)
+
+5. Al iniciar:
+   - Hibernate crea o actualiza todas las tablas (ddl-auto=update).
+   - DatosIniciales.java carga roles, usuarios, categorias, productos y
+     servicios de demostracion SOLO si las tablas estan vacias. Por eso los
+     datos se conservan al reiniciar el backend.
+
+6. Swagger (documentacion y pruebas de la API):
+       http://localhost:8080/swagger-ui/index.html
+   (tambien funciona http://localhost:8080/swagger-ui.html)
+   Para probar endpoints protegidos: haz POST /api/v1/auth/login, copia el
+   "token" de la respuesta, pulsa "Authorize" y pegalo.
+
+============================================================
+3. CUENTAS DE PRUEBA
+============================================================
+   Administrador   admin@duoc.cl         Admin123
+   Vendedor        vendedor@duoc.cl      Vende123
+   Cliente         cliente@gmail.com     Cliente1
+
+- Las contrasenas se guardan con BCrypt (nunca en texto plano).
+- Regla de contrasena: 4 a 10 caracteres y al menos una mayuscula.
+- Tras 3 intentos fallidos la cuenta se bloquea; el Administrador la
+  desbloquea desde el panel (PATCH /api/v1/usuarios/{id}/desbloquear).
+- El token JWT dura 1 hora (jwt.expiration-ms en application.properties).
+- Cupon de descuento de prueba: NUTRI10 (10 %).
+
+============================================================
+4. ESTRUCTURA DEL CODIGO (src/main/java/cl/duoc/nutrivifs)
+============================================================
+   auth/       Login, registro, renovacion de token y /auth/me
+   usuario/    Usuarios y roles (CRUD, perfil propio, desbloqueo)
+   producto/   Productos y sus categorias
+   servicio/   Servicios veterinarios y sus categorias
+   boleta/     Compras (boleta + detalle), stock, cupon y estados
+   cita/       Solicitudes de hora veterinaria
+   mensaje/    Mensajes del formulario de Contacto
+   resena/     Opiniones de productos (1 por usuario y producto)
+   reporte/    Indicadores del dashboard (semana, mes o anio)
+   archivo/    Subida de imagenes (solo Administrador)
+   security/   JWT, filtro de autenticacion y permisos por rol, CORS
+   exception/  Manejo central de errores (respuestas JSON con codigo HTTP)
+   config/     Datos iniciales, Swagger y publicacion de /uploads
+
+Cada modulo sigue el esquema: model -> repository -> service -> controller,
+con DTOs para entrada y salida.
+
+============================================================
+5. PERMISOS POR ROL (SecurityConfig.java)
+============================================================
+PUBLICO (sin sesion)
+- POST /api/v1/auth/login y /api/v1/auth/registro (el registro crea Clientes)
+- GET productos, servicios, sus categorias, resenas de un producto, /uploads
+- POST /api/v1/citas y POST /api/v1/mensajes
+
+CUALQUIER USUARIO CON SESION
+- POST /api/v1/auth/refresh y GET /api/v1/auth/me
+- PUT /api/v1/usuarios/me (editar su perfil; nunca cambia su rol)
+- POST /api/v1/boletas (comprar) y GET /api/v1/boletas/mias (su historial)
+- GET /api/v1/citas/mias (sus citas)
+- POST /api/v1/resenas y DELETE /api/v1/resenas/{id} (solo la suya;
+  el Administrador puede borrar cualquiera)
+
+ADMINISTRADOR Y VENDEDOR
+- GET /api/v1/boletas y GET /api/v1/boletas/{id}
+- GET /api/v1/citas y GET /api/v1/mensajes
+
+SOLO ADMINISTRADOR
+- CRUD de usuarios y roles, PATCH /usuarios/{id}/desbloquear
+- Crear, editar y eliminar productos, servicios y categorias
+- PATCH /boletas/{id}/estado y PATCH /citas/{id}/estado
+- DELETE /api/v1/mensajes/{id}
+- POST /api/v1/archivos/imagen
+- GET /api/v1/reportes/resumen
+
+Un cliente solo ve sus propias compras y citas: el backend usa el correo del
+token, no un identificador enviado por el cliente.
+
+============================================================
+6. REGLAS DE NEGOCIO
+============================================================
+- Comprar valida el stock, lo descuenta y recalcula los precios desde la base
+  de datos. Todo ocurre en una transaccion: si algo falla, no se guarda nada.
+- Estados de boleta: Entrega pendiente, Listo, Enviado.
+- Estados de cita: Pendiente, Confirmada, Rechazada. La fecha no puede estar
+  en el pasado.
+- No se elimina un usuario con compras ni se puede eliminar o cambiar el rol
+  de la propia cuenta.
+- Reportes: GET /api/v1/reportes/resumen?periodo=semana|mes|anio devuelve
+  cantidad de ordenes, monto vendido, unidades vendidas, citas y los 5
+  productos mas vendidos.
+
+============================================================
+7. IMAGENES
+============================================================
+POST /api/v1/archivos/imagen (multipart/form-data, campo "archivo"),
+solo Administrador, maximo 5 MB. La respuesta incluye una URL como
+/uploads/nombre-generado.jpg. El archivo se guarda en la carpeta "uploads"
+junto al proyecto y se sirve publicamente desde /uploads/**.
+
+============================================================
+8. ERRORES
+============================================================
+Las respuestas de error son JSON con codigo, mensaje y fecha:
+   400 datos invalidos o regla de negocio     401 sin sesion o credenciales
+   403 sin permiso para ese rol               404 no encontrado
+   409 registros relacionados o duplicados
+
+============================================================
+9. BASE DE DATOS: ALTERNATIVA MANUAL
+============================================================
+src/main/resources/scripts_poblado.sql inserta categorias, productos y
+servicios por SQL. Usalo solo con las tablas recien creadas y vacias (si no,
+duplica datos). Roles y usuarios no estan en el script porque sus
+contrasenas se cifran con BCrypt desde Java.
+
+============================================================
+10. PRUEBAS
+============================================================
+   ./mvnw test
+- BoletaServiceTest: pruebas unitarias de la compra (stock y cupon).
+- NutrivifsApplicationTests: levanta toda la aplicacion, por lo que necesita
+  MySQL encendido y la base "nutrivifs" creada.
+
+Antes de entregar: ./mvnw clean package debe terminar sin errores, y conviene
+probar en Swagger el login, un CRUD, el acceso sin token (401), el acceso con
+rol incorrecto (403) y la persistencia tras reiniciar el backend.
