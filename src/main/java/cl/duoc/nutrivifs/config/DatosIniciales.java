@@ -1,9 +1,16 @@
 package cl.duoc.nutrivifs.config;
 
+import cl.duoc.nutrivifs.boleta.model.Boleta;
+import cl.duoc.nutrivifs.boleta.model.DetalleBoleta;
+import cl.duoc.nutrivifs.boleta.repository.BoletaRepository;
+import cl.duoc.nutrivifs.cita.model.Cita;
+import cl.duoc.nutrivifs.cita.repository.CitaRepository;
 import cl.duoc.nutrivifs.producto.model.CategoriaProducto;
 import cl.duoc.nutrivifs.producto.model.Producto;
 import cl.duoc.nutrivifs.producto.repository.CategoriaProductoRepository;
 import cl.duoc.nutrivifs.producto.repository.ProductoRepository;
+import cl.duoc.nutrivifs.resena.model.Resena;
+import cl.duoc.nutrivifs.resena.repository.ResenaRepository;
 import cl.duoc.nutrivifs.servicio.model.Categoria;
 import cl.duoc.nutrivifs.servicio.model.Servicio;
 import cl.duoc.nutrivifs.servicio.repository.CategoriaRepository;
@@ -12,6 +19,8 @@ import cl.duoc.nutrivifs.usuario.model.Rol;
 import cl.duoc.nutrivifs.usuario.model.Usuario;
 import cl.duoc.nutrivifs.usuario.repository.RolRepository;
 import cl.duoc.nutrivifs.usuario.repository.UsuarioRepository;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
@@ -31,6 +40,9 @@ public class DatosIniciales {
     @Autowired private ProductoRepository productoRepository;
     @Autowired private CategoriaRepository categoriaServicioRepository;
     @Autowired private ServicioRepository servicioRepository;
+    @Autowired private BoletaRepository boletaRepository;
+    @Autowired private CitaRepository citaRepository;
+    @Autowired private ResenaRepository resenaRepository;
     @Autowired private PasswordEncoder passwordEncoder;
 
     @Bean
@@ -172,7 +184,116 @@ public class DatosIniciales {
                 servicioRepository.save(servicio("Test de leishmaniasis", "Prueba diagnóstica para detectar leishmaniasis en perros.",
                         "Perro", 15, "Prueba rápida.", 18000, "Test de leishmaniasis", "/img/leishmaniasis.jpg", "Test de leishmaniasis", false, "Exámenes"));
             }
+
+            cargarOperacionesDemo();
         };
+    }
+
+    // Compras, citas y reseñas de ejemplo para la demostración. Cada grupo se carga
+    // solo si su tabla está vacía. Las fechas son relativas a hoy, así los reportes
+    // por semana, mes y año siempre tienen datos. No descuentan stock.
+    private void cargarOperacionesDemo() {
+        if (!usuarioRepository.existsByMail("cliente2@gmail.com")) {
+            usuarioRepository.save(usuario("444444444", "María", "Soto",
+                    "cliente2@gmail.com", "Cliente2", Rol.CLIENTE));
+        }
+        Usuario cliente = usuarioRepository.findByMail("cliente@gmail.com").orElse(null);
+        Usuario cliente2 = usuarioRepository.findByMail("cliente2@gmail.com").orElse(null);
+        if (cliente == null || cliente2 == null || productoRepository.count() < 5) return;
+
+        if (boletaRepository.count() == 0) {
+            // (cliente, días atrás, estado, descuento, idProducto, cantidad, idProducto, cantidad...)
+            boletaRepository.save(boleta(cliente, 0, "Entrega pendiente", 0.10, 4L, 2, 1L, 1));
+            boletaRepository.save(boleta(cliente2, 1, "Listo", 0, 5L, 1, 2L, 2));
+            boletaRepository.save(boleta(cliente, 2, "Enviado", 0, 4L, 3));
+            boletaRepository.save(boleta(cliente2, 4, "Enviado", 0, 3L, 2, 1L, 2));
+            boletaRepository.save(boleta(cliente, 9, "Enviado", 0.10, 5L, 1, 2L, 1));
+            boletaRepository.save(boleta(cliente2, 15, "Enviado", 0, 4L, 1));
+            boletaRepository.save(boleta(cliente, 28, "Enviado", 0, 1L, 3, 3L, 1));
+            boletaRepository.save(boleta(cliente2, 70, "Enviado", 0, 5L, 2));
+            boletaRepository.save(boleta(cliente, 140, "Enviado", 0.10, 4L, 4, 2L, 1));
+        }
+
+        if (citaRepository.count() == 0) {
+            citaRepository.save(cita("Cliente Demo", "33.333.333-3", "cliente@gmail.com", "+56934020512",
+                    "Rocky", "Perro", "Consulta general", 3, "Pendiente", 0,
+                    "Control anual y revisión general de su estado de salud."));
+            citaRepository.save(cita("Cliente Demo", "33.333.333-3", "cliente@gmail.com", "+56934020512",
+                    "Rocky", "Perro", "Vacuna antirrábica canina", 10, "Confirmada", 2,
+                    "Vacuna anual obligatoria, última dosis hace un año."));
+            citaRepository.save(cita("María Soto", "44.444.444-4", "cliente2@gmail.com", "+56912345678",
+                    "Luna", "Gato", "Vacuna triple felina", 5, "Confirmada", 1,
+                    "Refuerzo anual de la vacuna triple para mi gata."));
+            citaRepository.save(cita("María Soto", "44.444.444-4", "cliente2@gmail.com", "+56912345678",
+                    "Luna", "Gato", "Consulta de urgencia", -15, "Rechazada", 20,
+                    "Vómitos desde ayer y no quiere comer, necesito atención."));
+        }
+
+        if (resenaRepository.count() == 0) {
+            resenaRepository.save(resena("ME004", "cliente@gmail.com", "Cliente Demo", 5, 6,
+                    "Mi perro lo recibe sin problemas y hace efecto rápido."));
+            resenaRepository.save(resena("ME001", "cliente@gmail.com", "Cliente Demo", 4, 12,
+                    "Buen antibiótico, el tratamiento fue el indicado por el veterinario."));
+            resenaRepository.save(resena("ME004", "cliente2@gmail.com", "María Soto", 4, 3,
+                    "Lo uso hace meses y no hemos tenido garrapatas."));
+            resenaRepository.save(resena("ME005", "cliente2@gmail.com", "María Soto", 5, 1,
+                    "Excelente protección, dura mucho más de lo que esperaba."));
+        }
+    }
+
+    private Boleta boleta(Usuario cliente, int diasAtras, String estado, double descuento, long... lineas) {
+        Boleta boleta = new Boleta();
+        boleta.setUsuario(cliente);
+        boleta.setFecha(LocalDateTime.now().minusDays(diasAtras).minusHours(2));
+        boleta.setEstado(estado);
+        int subtotal = 0;
+        for (int i = 0; i < lineas.length; i += 2) {
+            Producto producto = productoRepository.findById(lineas[i]).orElseThrow();
+            int cantidad = (int) lineas[i + 1];
+            DetalleBoleta detalle = new DetalleBoleta();
+            detalle.setBoleta(boleta);
+            detalle.setProducto(producto);
+            detalle.setCantidad(cantidad);
+            detalle.setPrecioUnitario(producto.getPrecio());
+            detalle.setSubtotal(producto.getPrecio() * cantidad);
+            boleta.getDetalles().add(detalle);
+            subtotal += detalle.getSubtotal();
+        }
+        int montoDescuento = (int) Math.round(subtotal * descuento);
+        boleta.setSubtotal(subtotal);
+        boleta.setDescuento(montoDescuento);
+        boleta.setTotal(subtotal - montoDescuento);
+        return boleta;
+    }
+
+    private Cita cita(String nombre, String rut, String correo, String telefono, String mascota,
+                      String especie, String tipoConsulta, int diasFecha, String estado,
+                      int diasSolicitud, String motivo) {
+        Cita cita = new Cita();
+        cita.setNombre(nombre);
+        cita.setRut(rut);
+        cita.setCorreo(correo);
+        cita.setTelefono(telefono);
+        cita.setMascota(mascota);
+        cita.setEspecie(especie);
+        cita.setTipoConsulta(tipoConsulta);
+        cita.setFecha(LocalDate.now().plusDays(diasFecha).toString());
+        cita.setMotivo(motivo);
+        cita.setEstado(estado);
+        cita.setFechaSolicitud(LocalDateTime.now().minusDays(diasSolicitud));
+        return cita;
+    }
+
+    private Resena resena(String productoId, String correo, String autor, int puntuacion,
+                          int diasAtras, String comentario) {
+        Resena resena = new Resena();
+        resena.setProductoId(productoId);
+        resena.setCorreo(correo);
+        resena.setAutor(autor);
+        resena.setPuntuacion(puntuacion);
+        resena.setComentario(comentario);
+        resena.setFecha(LocalDateTime.now().minusDays(diasAtras));
+        return resena;
     }
 
     private Usuario usuario(String run, String nombre, String apellido, String mail, String clave, String rol) {
